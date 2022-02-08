@@ -1,0 +1,20 @@
+cabal-version: >= 2.0
+name: timecode-generator
+version: 0.1.0
+build-type: Simple
+
+executable timecode-generator
+  hs-source-dirs: src
+  main-is: Main.hs
+  default-language: Haskell2010
+  build-depends: 
+    base >= 4.14.3,
+    bytestring,
+    aeson,
+    time,
+    split,
+    HTTP >= 4000,
+    http-client>= 0.6.4.1,
+    http-conduit >= 2.3.8,
+    tagsoup >= 0.14.6,
+    Diff
