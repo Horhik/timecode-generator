@@ -13,6 +13,10 @@ import Data.Algorithm.DiffOutput
 data GeneratorState = IsRunning | IsFinished
   deriving (Eq)
 
+getChanges :: Diff f -> Bool
+getChanges (First _) = True
+getChanges _ = False
+
 showRunning html = IsRunning
 
 getCheckBoxList html = html
@@ -22,7 +26,7 @@ timecodeGenerator IsFinished _ _  = return ()
 timecodeGenerator IsRunning text time = do
     html <- simpleHttp "https://hd.socks.town/s/h0jnEJQWy/download"
     let body =  (splitOn ("\n")) . L8.unpack $ html
-    print $ getDiff body text
+    print $ filter getChanges $ getDiff body text
 
     threadDelay 1000000
     if showRunning body == IsRunning then
