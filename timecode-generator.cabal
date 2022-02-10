@@ -10,11 +10,12 @@ executable timecode-generator
   build-depends: 
     base >= 4.14.3,
     bytestring,
+    utf8-string >= 1.0.2,
     aeson,
     time,
     split,
+    Diff,
     HTTP >= 4000,
     http-client>= 0.6.4.1,
     http-conduit >= 2.3.8,
-    tagsoup >= 0.14.6,
-    Diff
+    tagsoup >= 0.14.6
