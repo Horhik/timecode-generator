@@ -39,11 +39,16 @@ showRunning html = IsRunning
 myFormatDiffTime :: (UTCTime, UTCTime) -> String
 myFormatDiffTime (a,b)= formatTime defaultTimeLocale "%H:%M:%S" . posixSecondsToUTCTime $ diffUTCTime  a b
 
+appendToFile :: String -> String -> IO()
+appendToFile filename str = do
+  file <- openFile filename AppendMode
+  hPutStrLn file str  
+  hClose file
+
 -- Printing changes is they exsists
 genOutput :: Maybe String -> String -> String -> IO ()
 genOutput (Just changes) time timecodeFile= do
-  file <- openFile timecodeFile AppendMode
-  hPutStrLn file $ time ++ "\n " ++ changes
+  appendToFile timecodeFile $ time ++ "\n " ++ changes
 genOutput Nothing _ _ = return()
 
 -- Returning fetched url as a string separated by \n
@@ -79,6 +84,8 @@ main = do
   let url:timecodeFile:xs = args
   time <- getCurrentTime
   file <- fetchFile url
+  appendToFile timecodeFile $ "New Timecodes starts here \n "
+  appendToFile timecodeFile $ show time
   timecodeGenerator IsRunning file time url timecodeFile
 
   --let url = "https://hd.socks.town/s/h0jnEJQWy/download"
