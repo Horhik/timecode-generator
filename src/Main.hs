@@ -11,7 +11,7 @@ import Data.List.Split
 import Data.Algorithm.Diff
 import Data.Algorithm.DiffOutput
 import Data.ByteString.Lazy.UTF8 (toString) 
-
+import System.IO
 
 data GeneratorState = IsRunning | IsFinished
   deriving (Eq)
@@ -43,10 +43,11 @@ myFormatDiffTime (a,b)= formatTime defaultTimeLocale "%H:%M:%S" . posixSecondsTo
 -- Printing changes is they exsists
 genOutput :: Maybe String -> String -> IO ()
 genOutput (Just changes) time = do
-  putStrLn $ time ++ "\n " ++ changes
+  file <- openFile "timecodes.md" AppendMode
+  hPutStrLn file $ time ++ "\n " ++ changes
 genOutput Nothing _ = return()
 
-
+-- Returning fetched url as a string separated by \n
 fetchFile :: String -> IO [String]
 fetchFile url = do
     html <- simpleHttp url
