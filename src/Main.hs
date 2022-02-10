@@ -47,16 +47,16 @@ genOutput (Just changes) time = do
 genOutput Nothing _ = return()
 
 
-fetchFile :: IO [String]
-fetchFile = do
-    html <- simpleHttp "https://hd.socks.town/s/h0jnEJQWy/download"
+fetchFile :: String -> IO [String]
+fetchFile url = do
+    html <- simpleHttp url
     return $ (splitOn ("\n")) . toString $ html
   
 -- Main Loop
-timecodeGenerator :: GeneratorState -> [String] -> UTCTime -> IO ()
-timecodeGenerator IsFinished _ _  = return ()
-timecodeGenerator IsRunning prevFile time = do
-    newFile <- fetchFile
+timecodeGenerator :: GeneratorState -> [String] -> UTCTime -> String -> IO ()
+timecodeGenerator IsFinished _ _  _ = return ()
+timecodeGenerator IsRunning prevFile time url = do
+    newFile <- fetchFile url
     currTime <- getCurrentTime
     let changes =  getChanges newFile prevFile
     let diffTime =  myFormatDiffTime (currTime, time)
@@ -66,12 +66,13 @@ timecodeGenerator IsRunning prevFile time = do
     threadDelay 10000
     -- Creating a loop until `IsFinished`
     if showRunning newFile == IsRunning then
-      timecodeGenerator IsRunning newFile time
+      timecodeGenerator IsRunning newFile time url
     else
-      timecodeGenerator IsFinished newFile time
+      timecodeGenerator IsFinished newFile time url
   
 main :: IO ()
 main = do
+  let url = "https://hd.socks.town/s/h0jnEJQWy/download"
   time <- getCurrentTime
-  file <- fetchFile
-  timecodeGenerator IsRunning file time
+  file <- fetchFile url
+  timecodeGenerator IsRunning file time url
