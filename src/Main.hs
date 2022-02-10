@@ -31,8 +31,7 @@ getChanges now before = if (hasDiff ch) then Just res else Nothing
         diff = getDiff now before
         res = foldr (\(First x) y -> x ++ " \n " ++ y) "" ch
 
--- TODO
--- Should return signal to stop the script if there's a checkbox with a keyword `stop`
+-- TODO: Should return signal to stop the script if there's a checkbox with a keyword `stop`
 showRunning :: [String] -> GeneratorState
 showRunning html = IsRunning
 
@@ -41,11 +40,11 @@ myFormatDiffTime :: (UTCTime, UTCTime) -> String
 myFormatDiffTime (a,b)= formatTime defaultTimeLocale "%H:%M:%S" . posixSecondsToUTCTime $ diffUTCTime  a b
 
 -- Printing changes is they exsists
-genOutput :: Maybe String -> String -> IO ()
-genOutput (Just changes) time = do
-  file <- openFile "timecodes.md" AppendMode
+genOutput :: Maybe String -> String -> String -> IO ()
+genOutput (Just changes) time timecodeFile= do
+  file <- openFile timecodeFile AppendMode
   hPutStrLn file $ time ++ "\n " ++ changes
-genOutput Nothing _ = return()
+genOutput Nothing _ _ = return()
 
 -- Returning fetched url as a string separated by \n
 fetchFile :: String -> IO [String]
@@ -54,26 +53,33 @@ fetchFile url = do
     return $ (splitOn ("\n")) . toString $ html
   
 -- Main Loop
-timecodeGenerator :: GeneratorState -> [String] -> UTCTime -> String -> IO ()
-timecodeGenerator IsFinished _ _  _ = return ()
-timecodeGenerator IsRunning prevFile time url = do
+timecodeGenerator :: GeneratorState -> [String] -> UTCTime -> String -> String -> IO ()
+timecodeGenerator IsFinished _ _  _ _ = return ()
+timecodeGenerator IsRunning prevFile time url timecodeFile = do
     newFile <- fetchFile url
     currTime <- getCurrentTime
     let changes =  getChanges newFile prevFile
     let diffTime =  myFormatDiffTime (currTime, time)
 
-    genOutput changes diffTime
+    genOutput changes diffTime timecodeFile 
     -- Waiting for 1 second
     threadDelay 10000
     -- Creating a loop until `IsFinished`
     if showRunning newFile == IsRunning then
-      timecodeGenerator IsRunning newFile time url
+      timecodeGenerator IsRunning newFile time url timecodeFile
     else
-      timecodeGenerator IsFinished newFile time url
+      timecodeGenerator IsFinished newFile time url timecodeFile
   
+-- Commandline arguments:
+-- 1. Link to markdown file
+-- 2. File to write timecodes to
 main :: IO ()
 main = do
-  let url = "https://hd.socks.town/s/h0jnEJQWy/download"
+  args <- getArgs
+  let url:timecodeFile:xs = args
   time <- getCurrentTime
   file <- fetchFile url
-  timecodeGenerator IsRunning file time url
+  timecodeGenerator IsRunning file time url timecodeFile
+
+  --let url = "https://hd.socks.town/s/h0jnEJQWy/download"
+  --let timecodeFile = "timecodes.md"
