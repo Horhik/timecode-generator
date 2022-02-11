@@ -10,7 +10,7 @@ let
     packageOverrides = super: let self = super.pkgs; in rec {
       haskell = super.haskell // {
         packageOverrides = self: super: {
-          haskell-nix = super.callCabal2nix "timecode-generator" (gitIgnore [./.gitignore] ./.) {};
+          timecode-generator = super.callCabal2nix "timecode-generator" (gitIgnore [./.gitignore] ./.) {};
         };
       };
     };
@@ -19,7 +19,7 @@ let
 in {
   inherit pkgs;
   shell = compilerSet.shellFor {
-    packages = p: [p.haskell-nix];
+    packages = p: [p.timecode-generator];
     buildInputs = with pkgs; [
       compilerSet.cabal-install
       haskellPackages.tagsoup
