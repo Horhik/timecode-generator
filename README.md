@@ -1,5 +1,5 @@
 # timecode-generator 
-A simple Haskell script for creating timecodes by tracking changes in remote Markdown file
+A simple Haskell script for creating timecodes by tracking changes in remote text file
 
 **Requimpments**
 - Nix package manager installed
@@ -12,3 +12,6 @@ run `nix-shell` and then compile it with cabal inside (`cabal build timecode-gen
 
 ## how to use
 `./timecode-generator <URL to fetch> <Timecode filename>`
+
+## Other info
+**Correct link to file**: It should be a direct link to file itself. _Example:_ for hedgedoc the link isn't a https://hedgedoc.domain/AjCE6BZzTW2IHusdfwhRg it is a  https://hedgedoc.domain/AjCE6BZzTW2IHusdfwhRg + **/download** to get directly to pure markdown file
